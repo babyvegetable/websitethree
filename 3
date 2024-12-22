@@ -1,0 +1,89 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet';
+import { Maximize2, Minus, X, Folder } from 'lucide-react';
+
+// API Route (Ensures Proper Return)
+export function apiHandler(req, res) {
+  res.status(200).json({ message: "Hello, world!" });
+}
+
+// Middleware Optimization
+export function middleware(req) {
+  return NextResponse.next();
+}
+
+// Edge Function Example (with Error Handling)
+export function edgeHandler(req) {
+  try {
+    return new Response("Success", { status: 200 });
+  } catch (error) {
+    return new Response("Error", { status: 500 });
+  }
+}
+
+// Main Portfolio Component
+export default function WindowsPortfolio() {
+  const [activeWindow, setActiveWindow] = useState(null);
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  const faviconSVG = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect x="10" y="40" width="80" height="40" fill="#78350f"/>
+      <rect x="15" y="35" width="70" height="10" fill="#92400e"/>
+      <rect x="20" y="20" width="60" height="30" fill="#fef3c7"/>
+      <circle cx="30" cy="50" r="3" fill="#fbbf24"/>
+      <circle cx="40" cy="50" r="3" fill="#fbbf24"/>
+      <circle cx="50" cy="50" r="3" fill="#fbbf24"/>
+      <circle cx="60" cy="50" r="3" fill="#fbbf24"/>
+      <circle cx="70" cy="50" r="3" fill="#fbbf24"/>
+      <rect x="25" y="30" width="50" height="5" fill="#92400e"/>
+    </svg>
+  `;
+
+  const folders = [
+    { id: 'about', title: 'About Me ✨', content: <p>About Section</p> },
+    { id: 'poetry', title: 'Poetry Collection 📝', content: <p>Poetry Section</p> },
+  ];
+
+  const Window = ({ folder }) => (
+    <div 
+      className={`absolute bg-white border border-amber-200 shadow-lg rounded-lg overflow-hidden ${
+        isMaximized ? 'w-full h-full top-0 left-0' : 'w-96 min-h-64 max-h-[80vh] top-20 left-20'
+      }`}
+    >
+      <div className="bg-gradient-to-r from-amber-900 to-amber-700 text-white p-2 flex justify-between items-center">
+        <span>{folder.title}</span>
+        <div className="flex space-x-2">
+          <button onClick={() => setIsMaximized(!isMaximized)}><Maximize2 size={14} /></button>
+          <button onClick={() => setActiveWindow(null)}><X size={14} /></button>
+        </div>
+      </div>
+      <div>{folder.content}</div>
+    </div>
+  );
+
+  return (
+    <div 
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        backgroundColor: '#fdf6f1',
+      }}
+    >
+      <Helmet>
+        <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent(faviconSVG)}`} />
+        <title>Annalisa Portfolio</title>
+      </Helmet>
+
+      <div className="p-4 grid grid-cols-3 gap-4">
+        {folders.map(folder => (
+          <button key={folder.id} onClick={() => setActiveWindow(folder)}>
+            <Folder size={32} />
+            {folder.title}
+          </button>
+        ))}
+      </div>
+
+      {activeWindow && <Window folder={activeWindow} />}
+    </div>
+  );
+}
